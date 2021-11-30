@@ -84,7 +84,7 @@ Thư viện ESPAsyncWebServer dùng cho việc thiết lập HTTP server và web
 Để các chương trình dùng thư viện ESPAsyncWebserver hoat động, ta cần dùng thêm thư viện ESPAsyncTCP.
 
 #### Đoạn code Javascript để tạo kết nối Web Socket
-```sh
+```c
 //Trình tự mở một websocket cơ bản:
 
 var ws = new WebSocket('ws://domain.com:8000/'); // mở 1 websocket
@@ -105,7 +105,7 @@ ws.onclose = function() {
 
 #### Nhúng file HTML chứa đoạn code JS vào ESP8266
 
-```sh
+```html
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -154,7 +154,7 @@ ws.onclose = function() {
 ```
 
 #### Chương trình hoàn chỉnh cho ESP8266 (Viết bằng C++)
-```sh
+```c
 
 #include <ESP8266WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -296,7 +296,7 @@ Với tính năng như trên thì bạn có thể hình dung như sau: Nếu 1 c
 #### Javascript Websocket Client trên trình duyệt
 
 Với file ```sh index.html ``` có chứa mã nguồn Javascript tạo kết nối đến Websocket, để cùng thư mục với file ```sh server.js ```
-```sh
+```html
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -392,7 +392,7 @@ Trước tiên, ta sẽ nạp chương trình cho ESP8266. Điểm mấu chốt 
 Sau khi nạp xong chương trình, ta nhấn giữ button (GPIO0) trong 3s để thiết bị đi vào chế độ smartconfig. (Lúc này bạn sẽ thấy led trên board nhấp nháy nhanh hơn). Dùng smart phone của bạn truy cập vào wifi muốn kết nối, sau đó mở ứng dụng smartconfig và nhập các thông tin SSID và PASSWORD (nếu có) của wifi. Nhấn CONFIRM để xác nhận.
 
 #### Code 
-```sh 
+```c
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <Ticker.h>
