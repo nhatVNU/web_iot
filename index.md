@@ -483,7 +483,7 @@ Giúp nắm được các giao thức protocol và các IC chức năng.
 
 ## Lời kết.
 Mặc dù đã cố gắng để hoàn thành tốt nhất nội dung cho blog này, tuy nhiên vẫn không tránh khỏi những thiếu sót. Mọi ý kiến đóng góp xin gửi mail về địa chỉ nhat.tranminh@hcmut.edu.vn
- ## Giấy phép sử dụng tài liệu.
+## Giấy phép sử dụng tài liệu.
 Tài liệu tuân theo giấy phép CC-BY-NC-SA (creativecommons.org/licenses/by-nc-sa/4.0/legalcode)
  
 
