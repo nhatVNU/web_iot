@@ -18,127 +18,6 @@ header-includes: |
 ## Mục đích
 Nắm được cách mô tả hoạt động của các IC chức năng cơ bản sử dụng FPGA trên DE2.
 
-## Yêu cầu
-Mô tả lại IC 74LS138 bằng VHDL và đổ chương trình xuống kit DE2 để kiểm tra hoạt động.
-Gán chân theo mẫu sau:
-- Chân A được nối với SW0
-- Chân B được nối với SW1
-- Chân C được nối với SW2
-- Chân Y0 đến Y7 được nối với LED0 đến LED7
-- Chân E,E1,E2 được nối với SW10, SW11, SW12
-## Lí thuyết một số IC chức năng
-| Mã IC | Mã trên Proteus | Chức năng IC |
-| ------ | ------ | ------ |
-| 74LS138 | 74LS138 | Bộ giải mã 3 -> 8 |
-| 74LS148 | 74LS148 | Bộ mã hóa 8 -> 3 |
-| 74LS151 | 74HC151 | Bộ MUX 8 -> 1 | 
-| 74LS47 | 74LS47 | IC giải mã BCD sang led 7 đoạn anode chung |
-| 74LS85 | 74LS85 | IC so sánh 2 số nhị phân 8 bit |
-| 74LS283 | 74LS283 | IC cộng nhị phân 4 bit |
-## Thiết kế
-* Sơ đồ khối dự định thiết kế:
-
-![](./picture/1.png)
-
-
-* Chương trình VHDL mô tả hoạt động
-```sh
-LIBRARY ieee;
-USE ieee.std_logic_1164.all;
-ENTITY tn7 IS
-PORT ( c, b, a : IN STD_LOGIC;
-g1,g2a,g2b: IN STD_LOGIC;
-y : OUT STD_LOGIC_VECTOR(7 downto 0));
-END tn7;
-ARCHITECTURE flow OF tn7 IS
-SIGNAL data: STD_LOGIC_VECTOR(2 downto 0);
-SIGNAL temp: STD_LOGIC_VECTOR(7 downto 0);
-BEGIN
-data <= c & b & a;
-WITH data SELECT temp <= "11111110" WHEN "000" ,
-"11111101" WHEN "001" ,
-"11111011" WHEN "010" ,
-"11110111" WHEN "011" ,
-"11101111" WHEN "100" ,
-"11011111" WHEN "101" ,
-"10111111" WHEN "110" ,
-"01111111" WHEN "111" ,
-"11111111" WHEN OTHERS;
-y <= temp WHEN (g1 AND NOT g2a AND NOT g2b) = '1'
-ELSE "11111111";
-END flow;
-
-```
-* Kết quả chụp màn hình gán chân tương ứng với yêu cầu gán chân:
-
-![](./picture/2.png)
-
-* Hình chụp màn hình minh chứng cho việc biên dịch code thành công.
-
-![](./picture/3.png)
-
-* Kết quả RTL viewer
-
-![](./picture/4.png)
-
-* Dạng sóng thu được khi mô phỏng
-
-![](./picture/5.png)
-
-
-
-## Thiết kế hàm Boolean F(x, y, z)=$sigma(0, 3, 4, 7)$ sử dụng 74LS138
-
-Gán chân theo quy ước sau:
-- Chân x được nối với SW0
-- Chân y được nối với SW1
-- Chân z được nối với SW2	Ngõ ra được nối với LED0 
-
-```sh
-library ieee;
-use ieee.std_logic_1164.all;
-
-entity IC74138 is 
-port(
-    A, B, C, G1, G2A, G2B: in std_logic;
-	 Y: out std_logic_vector (7 downto 0));
-end IC74138;
-architecture dataflow of IC74138 is
-signal ABC: std_logic_vector (2 downto 0);
-signal d: std_logic_vector (7 downto 0);
-begin
-ABC <= A & B & C;
-with ABC select d <= "11111110" when "000",
-                "11111101" when "001",
-			       "11111011" when "010",
-			       "11110111" when "011",
-			       "11101111" when "100",
-			       "11011111" when "101",
-			       "10111111" when "110",
-			       "01111111" when others;
-y <= d when (G1 and (not G2A) and (not G2B)) = '1'
-       else "11111111";
-end dataflow;
-library ieee;
-use ieee.std_logic_1164.all;
-entity Example is 
-port(
-    x, y, z: in std_logic;
-	 f: out std_logic);
-end Example;	
-
-architecture model of Example is
-signal w: std_logic_vector (7 downto 0);
-component IC74138 
-port(
-    A, B, C, G1, G2A, G2B: in std_logic;
-	 Y: out std_logic_vector (7 downto 0));
-end component;
-begin
-user1: IC74138 port map (x,y,z,'1','0','0',w);
-f <= not((((w(0) and  w(3)) and w(4)) and w(7)));
-    end model;
-```
 
 ## Mô phỏng lại IC 74LS283 bằng VHDL 
 
@@ -473,9 +352,134 @@ Với file ```sh index.html ``` có chứa mã nguồn Javascript tạo kết n�
 
 ``` 
 
+## Các chế độ cấu hình WiFi
+Thông thường, khi bắt đầu kết nối wifi cho ESP8266, ta phải cấu hình cho thiết bị các thông số của Access Point cũng như SSID và password nếu mạng wifi được thiết lập các bảo mật như WEP/WPA/WPA2. Tuy nhiên, các ứng dụng nhúng sử dụng Wi-fi thường ít chú trọng đến giao diện người dùng (user interface), không có bàn phím hay touchscreen,.. để giao tiếp. Vì thế, mỗi khi muốn kết nối thiết bị ESP với một Access Point nào đó, bạn cần phải có một máy tính đã cài đặt sẵn phần mềm biên dịch, tiếp theo là viết code cấu hình lại thông số wifi cho thiết bị, sau đó nạp code cho thiết bị thông qua một cable USB.
+
+Điều này làm cho việc kết nối wifi trở nên khá bất tiện và phức tạp. Do vậy ESP8266 cung cấp các phương pháp thay thế khác giúp đơn giản hóa việc kết nối trạm ESP (chế độ Station) với một điểm truy cập. Đó là kết nối bằng ```sh SmartConfig```, ```sh WPS ``` hay ```sh Wifi Manager```.
+
+### Smartconfig
+#### Kiến thức
+
+
+SmartConfig là một giao thức được tạo ra nhằm cấu hình cho các thiết bị kết nối với mạng WiFi một cách dễ dàng nhất bằng smart phone. Nói một cách đơn giản, để kết nối WiFi cho thiết bị ESP8266, ta chỉ cần cung cấp thông tin mạng wifi (bao gồm SSID và password) cho ESP thông qua 1 ứng dụng trên smart phone.
+
+[](./picture/7.png)
+Chúng ta nên biết rằng, khi 1 điện thoại thông minh đã kết nối vào mạng WiFi có mật khẩu, thì toàn bộ dữ liệu trao đổi giữa Điện thoại và đầu mối khác trong mạng sẽ được mã hóa. Nghĩa là các thiết bị chưa được kết nối mạng và không có mật khẩu thì không thể giải mã được dữ liệu. Vậy làm thế nào để Ứng dụng trên điện thoại gởi thông tin kết nối này đến 1 thiết bị khác chưa hề kết nối mạng. Để làm được điều này, thì nhờ vào 2 đặc điểm sau:
+
+- ESP8266 có khả năng lắng nghe tất cả các gói tin không dây WiFi xung quanh nó, bao gồm cả các gói tin đã được mã hóa.
+
+- Các gói tin gởi trong mạng WiFi được mã hóa và không thể đọc được nội dung, tuy nhiên độ dài gói tin là một hằng số. Ví dụ, gói tin A chưa mã hóa có chiều dài là x, khi mã hóa gói tin A thành gói tin B, thì gói tin B sẽ có chiều dài là x + n, thì n là hằng số.
+
+Cách thức để giao thức ESPTOUCH thực hiện việc gởi thông tin SSID và mật khầu cho thiết bị như sau:
+
+- ESP8266 sẽ vào chế độ lắng nghe, lần lượt từng kênh.
+
+- Điện thoại phải kết nối vào mạng WiFi được mã hóa.
+
+- Ứng dụng trên điện thoại sẽ tiến hành gởi các gói tin với nội dung bất kỳ, nhưng có độ dài n theo từng ký tự của SSID và mật khẩu. Ví dụ, ssid của mạng là mynetwork thì sẽ có ký tự m, với ký tự ascii = 109, Ứng dụng sẽ gởi gói tin có độ dài 109 với nội dung bất kỳ, và lặp lại cho đến hết ký tự k, cũng như mật khẩu, và các ký tự khác như CRC.
+
+- Có thể giao thức ESPTOUCH sẽ mã hóa cả các thông số gởi đi, nhưng vẫn giữ nguyên tắc như trên.
+
+- ESP8266 sẽ phát hiện ra các gói tin với độ dài thay đổi này và ghép nối lại thành SSID và password để kêt nối vào mạng.
+
+- Khi ESP8266 kết nối thành công đến mạng, ESP8266 sẽ kết nối đến IP của Điện thoại, được cung cấp thông qua ESPTOUCH, và gởi thông tin kết nối thành công đến ứng dụng trên điện thoại.
+[](./picture/8.png)
+
+#### Thực hiện SmartConfig với ESP8266
+Trước tiên, ta sẽ nạp chương trình cho ESP8266. Điểm mấu chốt trong chương trình này chính là hàm WiFi.beginSmartConfig() được cung cấp trong thư viện ESP8266WiFi. Hàm này cho phép thiết bị khởi động chế độ SmartConfig, thu thập các thông tin từ các gói tin và giải mã chúng để có thể kết nối vào mạng Wifi.
+
+Sau khi nạp xong chương trình, ta nhấn giữ button (GPIO0) trong 3s để thiết bị đi vào chế độ smartconfig. (Lúc này bạn sẽ thấy led trên board nhấp nháy nhanh hơn). Dùng smart phone của bạn truy cập vào wifi muốn kết nối, sau đó mở ứng dụng smartconfig và nhập các thông tin SSID và PASSWORD (nếu có) của wifi. Nhấn CONFIRM để xác nhận.
+
+#### Code 
+```sh 
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <Ticker.h>
+#include <time.h>
+
+#define PIN_LED 16
+#define PIN_BUTTON 0
+
+#define LED_ON() digitalWrite(PIN_LED, HIGH)
+#define LED_OFF() digitalWrite(PIN_LED, LOW)
+#define LED_TOGGLE() digitalWrite(PIN_LED, digitalRead(PIN_LED) ^ 0x01)
+
+Ticker ticker;
+
+/* Hàm kiểm tra trạng thái của button*/
+bool longPress()
+{
+  static int lastPress = 0;
+  if (millis() - lastPress > 3000 && digitalRead(PIN_BUTTON) == 0) { // Nếu button được nhấn và giữ trong 3s thì
+    return true;                  // trả về "true".
+  } else if (digitalRead(PIN_BUTTON) == 1) { // Nếu button không được nhấn và giữ đủ 3s thì
+    lastPress = millis();         // gán biến lastPress bằng thời điểm khi gọi hàm, và trả về "false".
+  }                               //
+  return false;                   //
+}
+
+void tick()
+{
+  int state = digitalRead(PIN_LED); // Lấy trạng thái hiện tại của LED (GPIO16)
+  digitalWrite(PIN_LED, !state);  // Đảo trạng thái LED.
+}
+
+bool in_smartconfig = false;      // Biến trạng thái kiểm tra thiết bị có đang trong chế độ smartconfig hay không.
+
+/* Vào chế độ Smartconfig*/
+void enter_smartconfig()
+{
+  if (in_smartconfig == false) {  // Kiểm tra tra biến trạng thái, nếu không ở chế độ smartconfig thì
+    in_smartconfig = true;        // Gán biến trạng thái bằng "true", nghĩa là đang trong smartconfig
+    ticker.attach(0.1, tick);     // Nhấp nháy led chu kì 0.1s.
+    WiFi.mode(WIFI_STA);          // Thiết lập kết nối cho thiết bị ở chế độ Station mode
+    WiFi.beginSmartConfig();      // Bắt đầu chế độ smartconfig
+    Serial.println("Enter smartconfig");  // In thông báo "Enter smartconfig" ra màn hình
+  }
+}
+
+/* Thoát chế độ smartconfig*/
+void exit_smart()
+{
+  ticker.detach();              // Ngừng nháy led
+  LED_ON();                     // Bật LED
+  in_smartconfig = false;       // Gán biến trạng thái trở về ban đầu.
+  Serial.println("Connected, Exit smartconfig");  // In thông báo ra màn hình.
+}
+
+/* Cài đặt các thông số ban đầu*/
+void setup() {
+  Serial.begin(115200);         // Tốc độ baud = 115200
+  Serial.setDebugOutput(true);  // hiển thị các thông tin debug hệ thống lên màn hình qua serial
+
+  pinMode(PIN_LED, OUTPUT);     // Cấu hình GPIO cho các chân LED và button
+  pinMode(PIN_BUTTON, INPUT);   // Chớp tắt led chu kì 1s
+  Serial.println("Setup done"); // In thông báo đã cài đặt xong
+}
+
+/* Chương trình chính*/
+void loop() {
+  if (longPress()) {            // Gọi hàm longPress kiểm tra trạng thái button
+    enter_smartconfig();        // Nếu button được nhấn giữ trong 3s thì vào trạng thái smartconfig
+  }
+  if (WiFi.status() == WL_CONNECTED && in_smartconfig && WiFi.smartConfigDone()) { //Kiểm tra trạng thái kết nối wifi,
+                                // các thông số cấu hình cũng như trạng thái smartconfig
+    exit_smart();               // khi thiết bị đã hết nối wifi thành công, thoát chế độ smartconfig
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    //Chương trình của bạn khi thiết bị đã được kết nối wifi
+  }
+}
+
+```
+
+
+
 ## Tổng kết 
 Việc sử dụng giao thức websocket sẽ có nhiều lợi ích cho các kết nối 2 chiều, luôn được duy trì và có độ trễ thấp.
-Giúp nắm được các giao thức protocol và các IC chức năng
+Giúp nắm được các giao thức protocol và các IC chức năng. 
+
+Để triển khai một ứng dụng IoT thực tế thì đòi hỏi rất nhiều vấn đề, một trong số những điều quan trọng là dễ dùng, dễ cấu hình cho người sử dụng và phải bảo mật trong quá trình cung cấp thông tin cho thiết bị. Tùy thuộc vào nhu cầu phát triển sản phẩm và tính năng của sản phẩm mà bạn có thể lựa chọn cho mình phương pháp cấu hình phù hợp. Ví dụ, nếu thiết bị có nút nhấn và có phần mềm trên điện thoại, thì SmartConfig và WPS là một sự lựa chọn. Nếu là 1 bóng đèn trống trơn không có gì cả, thì WiFiManager lại hữu hiệu. 
 
 ## Lời kết.
 Mặc dù đã cố gắng để hoàn thành tốt nhất nội dung cho blog này, tuy nhiên vẫn không tránh khỏi những thiếu sót. Mọi ý kiến đóng góp xin gửi mail về địa chỉ nhat.tranminh@hcmut.edu.vn
