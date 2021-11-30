@@ -85,20 +85,20 @@ Thư viện ESPAsyncWebServer dùng cho việc thiết lập HTTP server và web
 
 #### Đoạn code Javascript để tạo kết nối Web Socket
 ```c
-//Trình tự mở một websocket cơ bản:
+
 
 var ws = new WebSocket('ws://domain.com:8000/'); // mở 1 websocket
 ws.onopen = function() //
 {
-   // sự kiện khi websocket được mở thành công
+   
 };
 
 ws.onmessage = function(evt)
 {
-    // sự kiện xảy ra khi client nhận dữ liệu từ server
+   
 };
 ws.onclose = function() {
-    // sự kiện khi websocket bị đóng
+  
 };
 
 ```
@@ -119,15 +119,15 @@ ws.onclose = function() {
     <script type="text/javascript">
         var button = document.getElementById('btn');
         var led = document.getElementById('led');
-        var url = window.location.host; // hàm trả về url của trang hiện tại kèm theo port
-        var ws = new WebSocket('ws://' + url + '/ws'); // mở 1 websocket với port 8000
-        ws.onopen = function() //khi websocket được mở thì hàm này sẽ được thưc hiện
+        var url = window.location.host; 
+        var ws = new WebSocket('ws://' + url + '/ws'); 
+        ws.onopen = function() 
         {
             document.getElementById('status').innerHTML = 'Connected';
-            led.disabled = false; //khi websocket được mở, mới cho phép
+            led.disabled = false;
         };
 
-        ws.onmessage = function(evt) // sự kiện xảy ra khi client nhận dữ liệu từ server
+        ws.onmessage = function(evt) 
         {
             if(evt.data == 'BTN_PRESSED') {
                 button.checked = true;
@@ -135,12 +135,12 @@ ws.onclose = function() {
                 button.checked = false;
             }
         };
-        ws.onclose = function() { // hàm này sẽ được thực hiện khi đóng websocket
+        ws.onclose = function() {
             led.disabled = true;
             document.getElementById('status').innerHTML = 'Disconnected';
         };
 
-        led.onchange = function() { // thực hiện thay đổi bật/tắt led
+        led.onchange = function() { 
             var status = 'LED_OFF';
             if (led.checked) {
                 status = 'LED_ON';
@@ -164,7 +164,7 @@ const char* password = "*********";
 const int LED = 16;
 const int BTN = 0;
 
-// để đưa đoạn code HTML vào chương trình Arduino, cần chuyển đổi code HTML sang dạng char
+
 
 const char index_html[] PROGMEM = ""
 "<!DOCTYPE HTML>"
@@ -214,15 +214,15 @@ AsyncWebServer server(8000);
 AsyncWebSocket ws("/ws");
 
 
-// Hàm xử lí sự kiện trên Server khi client là browser phát sự kiện
+
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
-  if (type == WS_EVT_DATA && len > 0) { // type: loại sự kiện mà server nhận được. Nếu sự kiện nhận được là từ websocket thì bắt đầu xử lí
+  if (type == WS_EVT_DATA && len > 0) { 
     data[len] = 0;
-    String data_str = String((char*)data); // ép kiểu, đổi từ kiểu char sang String
+    String data_str = String((char*)data); 
     if (data_str == "LED_ON") {
-      digitalWrite(LED, 0); // Khi client phát sự kiện "LED_ON" thì server sẽ bật LED
+      digitalWrite(LED, 0); 
     } else if (data_str == "LED_OFF") {
-      digitalWrite(LED, 1); // Khi client phát sự kiện "LED_OFF" thì server sẽ tắt LED
+      digitalWrite(LED, 1);
     }
   }
 
@@ -243,13 +243,13 @@ void setup()
   }
 
 
-  ws.onEvent(onWsEvent); // gọi hàm onWsEvent
+  ws.onEvent(onWsEvent); 
   server.addHandler(&ws);
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
 
-    request->send_P(200, "text/html", index_html); // trả về file index.html trên giao diện browser khi browser truy cập vào IP của server
+    request->send_P(200, "text/html", index_html);
   });
-    server.begin(); // khởi động server
+    server.begin();
 
 }
 
@@ -257,10 +257,10 @@ void setup()
 void loop()
 {
   static bool isPressed = false;
-  if (!isPressed && digitalRead(BTN) == 0) { //Nhấn nút nhấn GPIO0
+  if (!isPressed && digitalRead(BTN) == 0) { 
     isPressed = true;
     ws.textAll("BTN_PRESSED");
-  } else if (isPressed && digitalRead(BTN)) { //Nhả nút nhấn GPIO0
+  } else if (isPressed && digitalRead(BTN)) { 
     isPressed = false;
     ws.textAll("BTN_RELEASE");
   }
@@ -310,17 +310,17 @@ Với file ```sh index.html ``` có chứa mã nguồn Javascript tạo kết n�
     <script type="text/javascript">
         var button = document.getElementById('btn');
         var led = document.getElementById('led');
-        var url = window.location.host; // hàm trả về url của trang hiện tại kèm theo port
-        var ws = new WebSocket('ws://' + url + '/ws'); // mở 1 websocket với port 8000
+        var url = window.location.host; 
+        var ws = new WebSocket('ws://' + url + '/ws'); 
         console.log('connecting...')
-        ws.onopen = function() //khi websocket được mở thì hàm này sẽ được thưc hiện
+        ws.onopen = function() 
         {
             document.getElementById('status').innerHTML = 'Connected';
-            led.disabled = false; //khi websocket được mở, mới cho phép
+            led.disabled = false; 
             console.log('connected...')
         };
 
-        ws.onmessage = function(evt) // sự kiện xảy ra khi client nhận dữ liệu từ server
+        ws.onmessage = function(evt) 
         {
             console.log(evt.data)
             if(evt.data == 'BTN_PRESSED') {
@@ -333,12 +333,12 @@ Với file ```sh index.html ``` có chứa mã nguồn Javascript tạo kết n�
                 led.checked = true;
             }
         };
-        ws.onclose = function() { // hàm này sẽ được thực hiện khi đóng websocket
+        ws.onclose = function() { 
             led.disabled = true;
             document.getElementById('status').innerHTML = 'Connected';
         };
 
-        led.onchange = function() { // thực hiện thay đổi bật/tắt led
+        led.onchange = function() {
             var led_status = 'LED_OFF';
             if (led.checked) {
                 led_status = 'LED_ON';
@@ -407,68 +407,68 @@ Sau khi nạp xong chương trình, ta nhấn giữ button (GPIO0) trong 3s đ�
 
 Ticker ticker;
 
-/* Hàm kiểm tra trạng thái của button*/
+
 bool longPress()
 {
   static int lastPress = 0;
-  if (millis() - lastPress > 3000 && digitalRead(PIN_BUTTON) == 0) { // Nếu button được nhấn và giữ trong 3s thì
-    return true;                  // trả về "true".
+  if (millis() - lastPress > 3000 && digitalRead(PIN_BUTTON) == 0) { 
+    return true;                  
   } else if (digitalRead(PIN_BUTTON) == 1) { // Nếu button không được nhấn và giữ đủ 3s thì
-    lastPress = millis();         // gán biến lastPress bằng thời điểm khi gọi hàm, và trả về "false".
+    lastPress = millis();         
   }                               //
   return false;                   //
 }
 
 void tick()
 {
-  int state = digitalRead(PIN_LED); // Lấy trạng thái hiện tại của LED (GPIO16)
-  digitalWrite(PIN_LED, !state);  // Đảo trạng thái LED.
+  int state = digitalRead(PIN_LED); 
+  digitalWrite(PIN_LED, !state);  
 }
 
-bool in_smartconfig = false;      // Biến trạng thái kiểm tra thiết bị có đang trong chế độ smartconfig hay không.
+bool in_smartconfig = false;      
 
 /* Vào chế độ Smartconfig*/
 void enter_smartconfig()
 {
-  if (in_smartconfig == false) {  // Kiểm tra tra biến trạng thái, nếu không ở chế độ smartconfig thì
-    in_smartconfig = true;        // Gán biến trạng thái bằng "true", nghĩa là đang trong smartconfig
-    ticker.attach(0.1, tick);     // Nhấp nháy led chu kì 0.1s.
-    WiFi.mode(WIFI_STA);          // Thiết lập kết nối cho thiết bị ở chế độ Station mode
-    WiFi.beginSmartConfig();      // Bắt đầu chế độ smartconfig
-    Serial.println("Enter smartconfig");  // In thông báo "Enter smartconfig" ra màn hình
+  if (in_smartconfig == false) {  
+    in_smartconfig = true;        
+    ticker.attach(0.1, tick);     
+    WiFi.mode(WIFI_STA);         
+    WiFi.beginSmartConfig();      
+    Serial.println("Enter smartconfig");  
   }
 }
 
-/* Thoát chế độ smartconfig*/
+
 void exit_smart()
 {
-  ticker.detach();              // Ngừng nháy led
-  LED_ON();                     // Bật LED
-  in_smartconfig = false;       // Gán biến trạng thái trở về ban đầu.
-  Serial.println("Connected, Exit smartconfig");  // In thông báo ra màn hình.
+  ticker.detach();              
+  LED_ON();                     
+  in_smartconfig = false;      
+  Serial.println("Connected, Exit smartconfig");  
 }
 
-/* Cài đặt các thông số ban đầu*/
-void setup() {
-  Serial.begin(115200);         // Tốc độ baud = 115200
-  Serial.setDebugOutput(true);  // hiển thị các thông tin debug hệ thống lên màn hình qua serial
 
-  pinMode(PIN_LED, OUTPUT);     // Cấu hình GPIO cho các chân LED và button
-  pinMode(PIN_BUTTON, INPUT);   // Chớp tắt led chu kì 1s
-  Serial.println("Setup done"); // In thông báo đã cài đặt xong
+void setup() {
+  Serial.begin(115200);         
+  Serial.setDebugOutput(true);  
+
+  pinMode(PIN_LED, OUTPUT);     
+  pinMode(PIN_BUTTON, INPUT);   
+  Serial.println("Setup done"); 
 }
 
 /* Chương trình chính*/
 void loop() {
-  if (longPress()) {            // Gọi hàm longPress kiểm tra trạng thái button
-    enter_smartconfig();        // Nếu button được nhấn giữ trong 3s thì vào trạng thái smartconfig
+  if (longPress()) {            
+    enter_smartconfig();        
   }
-  if (WiFi.status() == WL_CONNECTED && in_smartconfig && WiFi.smartConfigDone()) { //Kiểm tra trạng thái kết nối wifi,
-                                // các thông số cấu hình cũng như trạng thái smartconfig
-    exit_smart();               // khi thiết bị đã hết nối wifi thành công, thoát chế độ smartconfig
+  if (WiFi.status() == WL_CONNECTED && in_smartconfig && WiFi.smartConfigDone()) { 
+                                
+    exit_smart();               
   }
   if (WiFi.status() == WL_CONNECTED) {
-    //Chương trình của bạn khi thiết bị đã được kết nối wifi
+    
   }
 }
 
